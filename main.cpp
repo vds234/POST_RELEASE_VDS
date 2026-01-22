@@ -6,6 +6,7 @@ int main()
     for(int i=0;i<sizeof(a)/sizeof(a[0]);i++)
     {
         std::cout << "Array element:" << a[i] << "\n";
+        std::cout << "hello World";
     }
     return 0;
 }
