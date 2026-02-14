@@ -1,100 +1,120 @@
 #include <iostream>
-template<typename T>
-class Unique_ptr
+#include <memory>
+template <typename T>
+class uniqueptr
 {
     private:
         T* m_ptr{};
-
     public:
-        Unique_ptr(T* p=nullptr)
-            :m_ptr{p}
+        uniqueptr(T* ptr = nullptr)
+            :m_ptr(ptr)
             {
-                std::cout << "Unique pointer constructed...";
+                std::cout << "Constructor Called..";
             }
 
-        ~Unique_ptr()
+        ~uniqueptr()
         {
-            std::cout << "Unique Ptr destructed..";
+            delete m_ptr;
         }
+            //Delete Copy Constructor and Copy assignment operator
+            uniqueptr(const uniqueptr&)=delete;
+            uniqueptr& operator=(const uniqueptr&)=delete;
 
-        Unique_ptr(const Unique_ptr&) = delete;
-        Unique_ptr& operator=(const Unique_ptr&) = delete;
-
-        Unique_ptr(Unique_ptr<int>&& other)
-            :m_ptr{other.m_ptr}
+            //Move Copy Constructor
+            uniqueptr(uniqueptr&& other)
             {
-                other.m_ptr = nullptr;
-                std::cout << "Move Copy Constructor..";
-            }
-
-        Unique_ptr& operator=(Unique_ptr<int>&& other)
-        {
-            if(this != &other)
-            {
-                delete m_ptr;
                 m_ptr = other.m_ptr;
                 other.m_ptr = nullptr;
-                std::cout << "Move assignment operator..";
             }
-            return *this;
-        }
 
-        T* get() const
-        {
-            return m_ptr;
-        }
-
-        T& operator*() const{
-            return *m_ptr;
-        }
-
-        T* operator->() const{
-            return m_ptr;
-        }
-
-        void show()
-        {
-            std::cout << "hello Smart pointer..";
-        }
-
-        T* release() {
-            T* temp = m_ptr;
-            m_ptr = nullptr;
-            return temp;
-        }
-
-        void reset(T* p = nullptr)
-        {
-            if(m_ptr!=p)
+            //Move Assignment Operator
+            uniqueptr& operator=(uniqueptr&& other)
             {
-                delete m_ptr;
-                m_ptr = p;
-
+                if(&other!=this)
+                {
+                    delete m_ptr;
+                    m_ptr = other.m_ptr;
+                    other.m_ptr = nullptr;
+                }
+                return *this;
             }
-        }
+
+            T& operator*()
+            {
+                return *m_ptr;
+            }
+
+            T* operator->()
+            {
+                return m_ptr;
+            }
+
+            T* get() const{
+                return m_ptr;
+            }
+
+            void reset(T* ptr = nullptr)
+            {
+                if(m_ptr)
+                    delete m_ptr;
+                m_ptr = ptr;
+                ptr = nullptr;
+            }
+
+            T* release()
+            {
+                T* temp = m_ptr;
+                m_ptr = nullptr;
+                return temp;
+            }
 };
 
 int main()
 {
-    Unique_ptr<int> uptr(new int(10));
-    //Unique_ptr<int> uptr1(uptr);  //error 
-    //Unique_ptr<int> uptr2 = uptr; //error
+    uniqueptr<int> ptr;
+    //std::cout << "Dereferencing:" << *ptr;
+    std::cout << "Get the Raw Pointer:" << ptr.get();
 
-    Unique_ptr<int> uptr1(std::move(uptr));  // Move Copy Constructor
-    Unique_ptr<int> uptr2 = std::move(uptr1);  //Move Copy Constructor
-    Unique_ptr<int> uptr3;  //Default Constructor
-    uptr3 = std::move(uptr2);   //Move assignment operator
+    uniqueptr<int> ptr1(new int(42));
+    std::cout << "Dereferencing:" << *ptr1;
+    std::cout << "Get the Raw Pointer:" << ptr1.get();
 
-    std::cout << "Get the raw pointer:" << uptr.get();
-    std::cout << "Dereferencing ptr:" << *uptr;
+    uniqueptr<int> ptr4 = std::move(ptr1);
+    std::cout << "Dereferencing:" << *ptr4;
+    std::cout << "Get the Raw Pointer:" << ptr4.get();
 
-    //uptr->show();
+    // std::cout << "Dereferencing:" << *ptr1;
+    // std::cout << "Get the Raw Pointer:" << ptr1.get();
 
-    uptr3.release();
+    uniqueptr<int> ptr3(new int(50));
+    std::cout << "Dereferencing:" << *ptr3;
+    std::cout << "Get the Raw Pointer:" << ptr3.get();
 
-    uptr3.reset(new int(100));
+    //ptr4 = ptr3;
 
-    std::cout << "Get the raw pointer:" << uptr3.get();
-    std::cout << "Dereferencing ptr:" << *uptr3;
+    ptr4 = std::move(ptr3);
+
+    ptr4.reset(new int(60));
+    std::cout << "Dereferencing:" << *ptr4;
+    std::cout << "Get the Raw Pointer:" << ptr4.get();
+
+    int* temp = ptr4.release();
+    std::cout << "Raw pointer:" << *temp;
+
+
+    
+
+    //Copy Constructor deleted in unique ptr
+    // uniqueptr<int> ptr2(ptr1);  //
+    // std::cout << "Dereferencing:" << *ptr2;
+    // std::cout << "Get the Raw Pointer:" << ptr2.get();
+
+    //Copy assignment operator deleted.
+    // uniqueptr<int> ptr3;
+    // ptr3 = ptr1;
+    // std::cout << "Dereferencing:" << *ptr3;
+    // std::cout << "Get the Raw Pointer:" << ptr3.get();
+
+
     return 0;
 }
