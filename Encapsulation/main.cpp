@@ -1,4 +1,7 @@
-//To demonstrate encapsulation principle
+//To demonstrate encapsulation with Banking Example
+    //Write a class with Name Bank
+    //with variable accountNo and balance
+    //Operations:- Deposit(), Withdraw(), Initialize varible
 //1. What is Encapsulation in C++
 //  Bundling of data and function together into a single unit i.e class
 //  Controlled access to private data members outside class i.e getters() and setters() and constructor
@@ -14,43 +17,62 @@
 //4. What will happen if encapsulation not used?
 //  --Data Corruption.
 //  --Invalid Object state i.e System crashes or undefined behaviour.
+//  --Direct variable access to modify.
+//  --Tight Coupling
+//5. Encapsulation Supports 
+//  --Single Responsibilty Principle
+//  --Open/Closed Principle
+//  --liskov Substitution Principle
+//6. IEWS Project
+//  --Bundling data + members
+//  --Controlled Access
+//  --Data Hiding + Class invariant
 #include <iostream>
-class Encapsulation
+class BankDetails
 {
     private:
-        float balance;
+        double m_accNumber{};
+        double m_balance{};
     public:
-        Encapsulation(float bal):
-            balance{bal}
+        BankDetails(double accNo,double bal)
+            :m_accNumber{accNo},
+            m_balance{bal}
             {
-                std::cout << "Balance was initialized..";
+                std::cout << "Updated Account Details..";
             }
-        
-        void deposit(float bal)
+
+        void deposit(double amount)
         {
-            balance = balance + bal;
+            m_balance = m_balance + amount;
+            std::cout << "Amount of Rs " << amount << " is Deposited successfully.\n";
+            std::cout << "Balance is Rs " << m_balance <<std::endl;
         }
 
-        float getBal()
+        void withdraw(double amount)
         {
-            return balance;
-        }
-
-        void withdraw(float amt)
-        {
-            if(balance < 0)
-                std::cout << "Insuffienct balance...";
+            if(m_balance < 0)
+                throw std::out_of_range("Insuffienct Balance...");
             else
-                balance = balance - amt;
+            {
+                m_balance -= amount;
+                std::cout << "Amount of Rs " << amount << " is withdraw successfully.\n";
+                std::cout << "Balance is Rs " << m_balance<< std::endl;
+            }
+                
         }
+
+        // double getBalance() const{
+        //     return m_balance;
+        // }
 };
 
 int main()
 {
-    Encapsulation e(0);
-    e.deposit(10000);
-    std::cout << "Balance:" <<e.getBal();
-    e.withdraw(5000);
-    std::cout << "Balance:" <<e.getBal();
+    BankDetails b(1234,10000);
+    b.deposit(1000);
+    b.withdraw(200);
+
+   // std::cout << "Balance is:" << b.getBalance();
+
     return 0;
 }
